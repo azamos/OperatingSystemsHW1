@@ -1,15 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define LINE_WIDTH 51
 typedef struct {
 	char* name;
 	int grade;
 }Student;
 
 int main(int argc, char* argv[]) {
+/*Step 1: reading the config file*/
+	if (argc != 2) {
+		printf("Missing config file as an argument.");
+		return 1;
+	}
 
-	char config_buffer[50];
-	
+	const char *config_path = argv[1];
+
+	FILE* config_file = fopen(config_path, "r");
+	if (config_file == NULL) {
+		perror("Error opening file");
+		return 1;
+	}
+
+	/*if we got here, the file opened succesfully*/
+	char config_buffer[LINE_WIDTH];
+	int line_index = 0;
+	char* lines[3];//No need to use malloc, since I know from the start that the size is 3
+	while (fgets(config_buffer, sizeof(config_buffer),config_file) != NULL) {
+		lines[line_index] = (char*)malloc((1+sizeof(config_buffer))*sizeof(char));
+		strcpy(lines[line_index],config_buffer);
+		printf("%s", lines[line_index]); 
+	}
+
+	fclose(config_file);
+	return 0;
+
+
+
+
 
 
 
