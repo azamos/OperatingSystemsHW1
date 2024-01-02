@@ -39,7 +39,6 @@ int main(int argc, char* argv[]){
 	else{
 		int status;
 		waitpid(pid,&status,0);
-		printf("\nstatus=%d\n",status);
 	}
 	return 0;
 }

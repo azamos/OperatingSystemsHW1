@@ -1,15 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-int main(int argc, char* argv[]){
-	if(argc<3){
-		printf("Not enough args were provided. exit...");
-		exit(0);
-	}
+int text_cmp(char* filepath1, char* filepath2){
 	char* cmp_path = "/usr/bin/cmp";
 	pid_t pid = fork();
 	if(pid==0){
-		printf("FORKED!now highjacking process to run gnome-terninal...");
-		char *args[] = {cmp_path,"-s",argv[1],argv[2],NULL};
+		char *args[] = {cmp_path,"-s",filepath1,filepath2,NULL};
 		int retcode = execvp(cmp_path,args);
 		if(retcode==-1){
 			perror("exec failed");
@@ -24,4 +19,8 @@ int main(int argc, char* argv[]){
 		}
 	}
 	return 1;
+}
+
+int main(int argc, char* argv[]){
+	return text_cmp(argv[1],argv[2]);
 }
