@@ -23,21 +23,31 @@ int main(int argc, char* argv[]) {
 	while (fgets(config_buffer, sizeof(config_buffer), config_file) != NULL) {
 		//printf("%s", config_buffer); 
 		int n = strlen(config_buffer);
+		/*Removing whitespaces...*/
+		while(n>0 && (config_buffer[n-1]=='\n' || config_buffer[n-1] == '\r' || config_buffer[n-1]==' '|| config_buffer[n-1]=='\t')){
+			config_buffer[--n] ='\0';
+		}
 		char* allocated_space = (char*)malloc(n+1);
 		strcpy(allocated_space,config_buffer);
-		*(allocated_space+n) = '\0';
+		allocated_space[n] = '\0';
 		lines[counter] = allocated_space;
-		printf("\nlines[%d]=\n%s",counter,lines[counter]);
+		//printf("\nlines[%d]=\n%s",counter,lines[counter]);
 		counter++;
 	}
 	fclose(config_file);
-	return 0;
+	/*if(strcmp(lines[0],"/home/user/Desktop/Hw1Data/subfolders/")!=0){
+		printf("DIFFERENT STRINGS");
+	}*/
+
+	/*PART 2*/
 
 
-	char command[50];
-	char* dir_name = argc > 1? argv[1] : "";
+	char command[384];
+	memset(command,0,384);
+	char* dir_name = argc > 1? lines[0] : "";
+	//printf("\n\n%s",dir_name);
 	sprintf(command, "ls %s -1 | wc -l",dir_name);//I have chosen to use sprintf with command as a buffer, instead of doing another malloc and strcpy
-	printf("command is: \n%s\n",command);
+	//printf("\n\ncommand is: \n%s\n",command);
 	FILE *pipe = popen(command, "r");
 
 	char buffer[128];//reasonable to assume less than a 128 digits number of students
@@ -47,7 +57,7 @@ int main(int argc, char* argv[]) {
 		pclose(pipe);
 		exit(EXIT_FAILURE);
 	}
-	printf("buffer is:\n %s\n",buffer);
+	//printf("buffer is:\n %s\n",buffer);
 	int num_of_students = atoi(buffer);
 	printf("\nNumber of students: %d\n",num_of_students);
 	if(pclose(pipe)==-1){
