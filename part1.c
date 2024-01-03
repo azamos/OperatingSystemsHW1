@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 int text_cmp(char* filepath1, char* filepath2){
 	char* cmp_path = "/usr/bin/cmp";
 	pid_t pid = fork();
