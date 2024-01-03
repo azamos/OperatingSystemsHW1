@@ -12,26 +12,28 @@ int main(int argc, char* argv[]) {
 		return 1; 
 	}
 	const char *config_path = argv[1];
-
-	// Open the file for reading
 	FILE *config_file = fopen(config_path, "r");
-
-	// Check if the file opened successfully
 	if (config_file == NULL) {
 		perror("Error opening file");
-		return 1; // Exit with an error code
+		return 1; 
 	}
-
-	// Read the file line by line
-	char config_buffer[256]; // Adjust the buffer size accordingly
+	char* lines[3];
+	int counter = 0;
+	char config_buffer[256]; 
 	while (fgets(config_buffer, sizeof(config_buffer), config_file) != NULL) {
-		printf("%s", config_buffer); // You can process or print the line as needed
+		//printf("%s", config_buffer); 
+		int n = strlen(config_buffer);
+		char* allocated_space = (char*)malloc(n+1);
+		strcpy(allocated_space,config_buffer);
+		*(allocated_space+n) = '\0';
+		lines[counter] = allocated_space;
+		printf("\nlines[%d]=\n%s",counter,lines[counter]);
+		counter++;
 	}
-
-	// Close the file
 	fclose(config_file);
+	return 0;
 
-	return 0; // Exit successfully
+
 	char command[50];
 	char* dir_name = argc > 1? argv[1] : "";
 	sprintf(command, "ls %s -1 | wc -l",dir_name);//I have chosen to use sprintf with command as a buffer, instead of doing another malloc and strcpy
