@@ -7,6 +7,7 @@
 typedef struct {
 	char* name;
 	int grade;
+	char* exe_path;
 }Student;
 
 int main(int argc, char* argv[]) {
@@ -99,10 +100,10 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	/*PART 3: forking and executing the main of each student with the input provided in lines[1].*/
+	/*PART 3: constructing the full path to the executables.*/
 
 	for(int j=0;j<num_of_students;j++){
-		printf("students[j=%d] name is %s\n",j,students[j]->name);
+		//printf("students[j=%d] name is %s\n",j,students[j]->name);
 		int path_to_subfolders_len = strlen(lines[0]);
 		//printf("path_len = %d",path_to_subfolders_len);
 		int subfolder_name_len = strlen(students[j]->name);
@@ -110,18 +111,23 @@ int main(int argc, char* argv[]) {
 		char* suffix = "/main.exe";
 		int suffix_len = strlen(suffix);
 		int total_len = path_to_subfolders_len+subfolder_name_len+suffix_len+1;
-		printf("total len = %d\n",total_len);
+		//printf("total len = %d\n",total_len);
 		char* fullpath = (char*)malloc(total_len);
 		strcpy(fullpath,lines[0]);
 		strcpy(fullpath + path_to_subfolders_len,students[j]->name);
 		strcpy(fullpath + path_to_subfolders_len+subfolder_name_len,suffix);
-		printf("AAAAAAAAAAAAAARG\n\n%s\n",fullpath);
-		free(fullpath);
+		//printf("fullpath: \n%s\n",fullpath);
+		students[j]->exe_path = fullpath;
+	}
+	
+	for(int i=0;i<num_of_students;i++){
+		printf("for student %s, the path to the executable is:\n %s\n",students[i]->name,students[i]->exe_path);
 	}
 
 	/*FINAL PART: freeing dynamicaLLY allocated mem.*/
 	for(int k =0 ;k<num_of_students;k++){
 		free(students[k]->name);
+		free(students[k]->exe_path);
 		free(students[k]);
 	}
 	free(students);
