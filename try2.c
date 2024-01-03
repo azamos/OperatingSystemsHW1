@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 		}
 		char* allocated_space = (char*)malloc(n+1);
 		strcpy(allocated_space,config_buffer);
-		allocated_space[n] = '\0';
+		//allocated_space[n] = '\0';
 		lines[counter] = allocated_space;
 		//printf("\nlines[%d]=\n%s",counter,lines[counter]);
 		counter++;
@@ -82,10 +82,14 @@ int main(int argc, char* argv[]) {
 	int index = 0;
 	while(fgets(names_buffer,sizeof(names_buffer),pipe2)!=NULL){
 		//printf("\n Student name is %s",names_buffer);
-		char* name_mem_aloc = (char*)malloc(sizeof(char)*(strlen(names_buffer)+1));
+		int n = strlen(names_buffer);
+		while(n>0 && (names_buffer[n-1]=='\n' || names_buffer[n-1] == '\r' || names_buffer[n-1]==' '|| names_buffer[n-1]=='\t')){
+			names_buffer[--n] ='\0';
+		}
+		char* name_mem_aloc = (char*)malloc(sizeof(char)*(n+1));
 		//printf("VALIDATING NAME WITHOUT WS: %ld",strlen(names_buffer));
 		strcpy(name_mem_aloc,names_buffer);
-		name_mem_aloc[strlen(names_buffer)]='\0';//TODO: remove if not fix
+		//name_mem_aloc[strlen(names_buffer)]='\0';//TODO: remove if not fix
 		students[index]->name = name_mem_aloc;
 		//printf("\nstudents[%d]->name = %s,student_len = %ld",i,students[i]->name,strlen(students[i]->name));
 		index++;
@@ -107,6 +111,12 @@ int main(int argc, char* argv[]) {
 		int suffix_len = strlen(suffix);
 		int total_len = path_to_subfolders_len+subfolder_name_len+suffix_len+1;
 		printf("total len = %d\n",total_len);
+		char* fullpath = (char*)malloc(total_len);
+		strcpy(fullpath,lines[0]);
+		strcpy(fullpath + path_to_subfolders_len,students[j]->name);
+		strcpy(fullpath + path_to_subfolders_len+subfolder_name_len,suffix);
+		printf("AAAAAAAAAAAAAARG\n\n%s\n",fullpath);
+		free(fullpath);
 	}
 
 	/*FINAL PART: freeing dynamicaLLY allocated mem.*/
