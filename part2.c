@@ -159,17 +159,66 @@ int main(int argc, char* argv[]) {
 			//printf("\nchild process finished.\n");
 		}
 	}
+	/*PART 5: Extracting the inputs*/
+	/*First, extract number of arguments by number of lines. TODO: if there is time,
+	export all duplicate code segments, such as this, to functions.UPDATE-TODO:ran out of time...*/
+	char bash_command[256];
+	memset(bash_command,0,256);
+	sprintf(bash_command, "wc -l %s",lines[1]);//I have chosen to use sprintf with command as a buffer, instead of doing another malloc and strcpy
 
-	/*PART 5: running the users main.exe files and saving the results to a temporary file...*/
+	FILE *bash_pipe = popen(bash_command, "r");
+
+	char bash_buffer[128];//I assume an input string will be less than 128. If not, I am in big problem.
+	//read the output of wc -l
+	if(fgets(bash_buffer,sizeof(bash_buffer),bash_pipe)==NULL){
+		printf("failed to get amount of inputs");
+		pclose(bash_pipe);
+		exit(EXIT_FAILURE);
+	}
+	//printf("bash_buffer = %s",bash_buffer);
+	int num_of_inputs = atoi(bash_buffer);
+	//printf("\nnum_of_inputs = %d\n",num_of_inputs);
+	if(pclose(bash_pipe)==-1){
+		perror("pclose");
+		exit(EXIT_FAILURE);
+	}
+	/*Done counting inputs*/
+
+	FILE *input_file = fopen(lines[1], "r");//open the input file again, and now allocate space for each line
+	char input_buffer[128];
+	char* inputs[num_of_inputs+2];
+	inputs[0]=NULL;
+	inputs[num_of_inputs+1]=NULL;
+	int input_counter = 0;
+	while (fgets(input_buffer, sizeof(input_buffer), input_file) != NULL) {
+		//printf("\nINPUT BUFFER = %s\n",input_buffer);
+		int n = strlen(input_buffer);
+		/*Removing whitespaces...*/
+		while(n>0 && (input_buffer[n-1]=='\n' || input_buffer[n-1] == '\r' || input_buffer[n-1]==' '|| input_buffer[n-1]=='\t')){
+			input_buffer[--n] ='\0';
+		}
+		//printf("	n=%d     ",n);
+		char* allocated_space = (char*)malloc(n+1);
+		strcpy(allocated_space,input_buffer);
+		//allocated_space[n] = '\0';
+		inputs[input_counter] = allocated_space;
+		//printf("\ninputs[input_counter] = %s\n",inputs[input_counter]);
+		//printf("\nlines[%d]=\n%s",counter,lines[counter]);
+		input_counter++;
+	}
+	fclose(input_file);
+	/*Now, inputs should contain all arguments needed for executing the Students main exe files.*/
+	/*PART 6: running the users main.exe files and saving the results to a temporary file...*/
 	for(int i = 0; i<num_of_students;i++){
 		int status;
 		pid_t pid = fork();
 		if(pid==0){
 			char* exe_path = students[i]->exe_path;
 			char* out_path = students[i]->out_path;
-			char* cmd[] = {exe_path,lines[1],NULL};
+			inputs[0] = (char*)malloc(strlen(exe_path)+1);
+			strcpy(inputs[0],exe_path);
 			freopen(out_path,"w",stdout);
-			execvp(cmd[0],cmd);
+			execvp(inputs[0],inputs);
 		}
 		else{
 			wait(&status);
@@ -187,6 +236,9 @@ int main(int argc, char* argv[]) {
 	free(students);
 	for(int j=0;j<3;j++){
 		free(lines[j]);
+	}
+	for(int j =0;j<num_of_inputs;j++){
+		free(inputs[j]);
 	}
 
 	return 0;
