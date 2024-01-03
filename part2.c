@@ -161,17 +161,20 @@ int main(int argc, char* argv[]) {
 	}
 
 	/*PART 5: running the users main.exe files and saving the results to a temporary file...*/
-	/*for(int i = 0; i<num_of_students;i++){
+	for(int i = 0; i<num_of_students;i++){
 		int status;
 		pid_t pid = fork();
 		if(pid==0){
 			char* exe_path = students[i]->exe_path;
-			char* cmd[] = {exe_path,
+			char* out_path = students[i]->out_path;
+			char* cmd[] = {exe_path,lines[1],NULL};
+			freopen(out_path,"w",stdout);
+			execvp(cmd[0],cmd);
 		}
 		else{
 			wait(&status);
 		}
-	}*/
+	}
 
 	/*FINAL PART: freeing dynamicaLLY allocated mem.*/
 	for(int k =0 ;k<num_of_students;k++){
