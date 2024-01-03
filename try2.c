@@ -4,10 +4,14 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#define GCC_PATH  "/usr/bin/gcc"
+
 typedef struct {
 	char* name;
 	int grade;
 	char* exe_path;
+	char* src_path;
 }Student;
 
 int main(int argc, char* argv[]) {
@@ -100,7 +104,7 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	/*PART 3: constructing the full path to the executables.*/
+	/*PART 3: constructing the full path to the src files and to the executables.*/
 
 	for(int j=0;j<num_of_students;j++){
 		//printf("students[j=%d] name is %s\n",j,students[j]->name);
@@ -108,25 +112,45 @@ int main(int argc, char* argv[]) {
 		//printf("path_len = %d",path_to_subfolders_len);
 		int subfolder_name_len = strlen(students[j]->name);
 		//printf("subfolder_namne_len = %ld",subfolder_name_len);
-		char* suffix = "/main.exe";
+		char* suffix = "/main.c";//TODO: CRITICAL: MAKE SURE THIS IS WHAT IS IN THE SUBFOLDERS ACCORDING TO THE REQUIREMENTS, NOT YOUR OWN GUESS.
 		int suffix_len = strlen(suffix);
 		int total_len = path_to_subfolders_len+subfolder_name_len+suffix_len+1;
-		//printf("total len = %d\n",total_len);
 		char* fullpath = (char*)malloc(total_len);
 		strcpy(fullpath,lines[0]);
 		strcpy(fullpath + path_to_subfolders_len,students[j]->name);
 		strcpy(fullpath + path_to_subfolders_len+subfolder_name_len,suffix);
-		//printf("fullpath: \n%s\n",fullpath);
-		students[j]->exe_path = fullpath;
+		students[j]->src_path = fullpath;
+
+		char* exe_suffix = "/main.exe";
+		int exe_suffix_len = strlen(exe_suffix);
+		int total_len_exe = path_to_subfolders_len+subfolder_name_len+exe_suffix_len;
+		char* exe_fullpath = (char*)malloc(total_len_exe);
+		strcpy(exe_fullpath,lines[0]);
+		strcpy(exe_fullpath + path_to_subfolders_len,students[j]->name);
+		strcpy(exe_fullpath + path_to_subfolders_len + subfolder_name_len,exe_suffix);
+		students[j]->exe_path = exe_fullpath;
 	}
-	
 	for(int i=0;i<num_of_students;i++){
-		printf("for student %s, the path to the executable is:\n %s\n",students[i]->name,students[i]->exe_path);
+		printf("for student %s, the path to the src is:\n %s\n",students[i]->name,students[i]->src_path);
+		printf("for student %s, the path to the exe is:\n %s\n",students[i]->name,students[i]->exe_path);
+		int status;
+		pid_t pid = fork();
+		if(pid==0){
+			char* src_path = students[i]->src_path;
+			char* exe_path = students[i]->exe_path;
+			char* cmd[] = {"gcc",src_path,"-o",exe_path,NULL};
+			execvp(cmd[0],cmd);
+		}
+		else{
+			wait(&status);
+			printf("\nchild process finished.\n");
+		}
 	}
 
 	/*FINAL PART: freeing dynamicaLLY allocated mem.*/
 	for(int k =0 ;k<num_of_students;k++){
 		free(students[k]->name);
+		free(students[k]->src_path);
 		free(students[k]->exe_path);
 		free(students[k]);
 	}
