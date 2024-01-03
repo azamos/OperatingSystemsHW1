@@ -10,6 +10,7 @@ int main(int argc, char* argv[]) {
 	char command[50];
 	char* dir_name = argc > 1? argv[1] : "";
 	sprintf(command, "ls %s -1 | wc -l",dir_name);//I have chosen to use sprintf with command as a buffer, instead of doing another malloc and strcpy
+	printf("command is: \n%s\n",command);
 	FILE *pipe = popen(command, "r");
 
 	char buffer[128];//reasonable to assume less than a 128 digits number of students
@@ -19,6 +20,7 @@ int main(int argc, char* argv[]) {
 		pclose(pipe);
 		exit(EXIT_FAILURE);
 	}
+	printf("buffer is:\n %s\n",buffer);
 	int num_of_students = atoi(buffer);
 	printf("\nNumber of students: %d\n",num_of_students);
 	if(pclose(pipe)==-1){

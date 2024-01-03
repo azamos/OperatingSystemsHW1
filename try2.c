@@ -1,49 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define LINE_WIDTH 51
 typedef struct {
 	char* name;
 	int grade;
 }Student;
 
 int main(int argc, char* argv[]) {
-/*Step 1: reading the config file*/
 	if (argc != 2) {
-		printf("Missing config file as an argument.");
-		return 1;
+		printf("Usage: %s <file_path>\n", argv[0]);
+		return 1; 
 	}
-
 	const char *config_path = argv[1];
 
-	FILE* config_file = fopen(config_path, "r");
+	// Open the file for reading
+	FILE *config_file = fopen(config_path, "r");
+
+	// Check if the file opened successfully
 	if (config_file == NULL) {
 		perror("Error opening file");
-		return 1;
+		return 1; // Exit with an error code
 	}
 
-	/*if we got here, the file opened succesfully*/
-	char config_buffer[LINE_WIDTH];
-	int line_index = 0;
-	char* lines[3];//No need to use malloc, since I know from the start that the size is 3
-	while (fgets(config_buffer, sizeof(config_buffer),config_file) != NULL) {
-		lines[line_index] = (char*)malloc((1+sizeof(config_buffer))*sizeof(char));
-		strcpy(lines[line_index],config_buffer);
-		printf("%s", lines[line_index]); 
+	// Read the file line by line
+	char config_buffer[256]; // Adjust the buffer size accordingly
+	while (fgets(config_buffer, sizeof(config_buffer), config_file) != NULL) {
+		printf("%s", config_buffer); // You can process or print the line as needed
 	}
 
+	// Close the file
 	fclose(config_file);
-	return 0;
 
-
-
-
-
-
-
+	return 0; // Exit successfully
 	char command[50];
 	char* dir_name = argc > 1? argv[1] : "";
 	sprintf(command, "ls %s -1 | wc -l",dir_name);//I have chosen to use sprintf with command as a buffer, instead of doing another malloc and strcpy
+	printf("command is: \n%s\n",command);
 	FILE *pipe = popen(command, "r");
 
 	char buffer[128];//reasonable to assume less than a 128 digits number of students
@@ -53,6 +45,7 @@ int main(int argc, char* argv[]) {
 		pclose(pipe);
 		exit(EXIT_FAILURE);
 	}
+	printf("buffer is:\n %s\n",buffer);
 	int num_of_students = atoi(buffer);
 	printf("\nNumber of students: %d\n",num_of_students);
 	if(pclose(pipe)==-1){
